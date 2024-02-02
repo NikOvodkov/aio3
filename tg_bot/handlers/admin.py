@@ -1,0 +1,93 @@
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+
+from aiogram import Dispatcher, Router
+from aiogram.dispatcher import FSMContext
+from aiogram.filters import Command
+from aiogram.types import Message, BotCommandScopeChat, ChatType
+from aiogram.utils.markdown import quote_html
+
+from tg_bot.db.sqlite import SQLiteDatabase
+from tg_bot.misc.throttling import rate_limit
+from tg_bot.services.setting_commands import set_admins_commands, set_chat_admins_commands
+from tg_bot.utils.aiogsheets import gsheets
+from tg_bot.utils.atomy import check_user
+
+from tg_bot.filters.admin import AdminFilter
+
+admin_router = Router()
+
+admin_router.message.filter(AdminFilter(is_admin=True))
+
+
+@rate_limit(3)
+@admin_router.message(Command('start'))
+async def admin_start(message: Message, db: SQLiteDatabase, state: FSMContext):
+    await state.finish()
+    await set_admins_commands(message.bot, message.from_user.id)
+
+    name = message.from_user.full_name
+    try:
+        db.add_user(id=message.from_user.id, name=name)
+    except sqlite3.IntegrityError as err:
+        print(err)
+    count_users = db.count_users()[0]
+
+    await message.answer(
+        '\n'.join([
+            f'Привет, админ {message.from_user.full_name}!',
+            f'Ты был занесён в базу',
+            f'В базе <b>{count_users}</b> пользователей'
+        ]))
+
+
+@rate_limit(3)
+@admin_router.message(Command('get_commands'))
+async def message_get_commands(message: Message):
+    no_lang = await message.bot.get_my_commands(scope=BotCommandScopeChat(message.from_user.id))
+    no_args = await message.bot.get_my_commands()
+    en_lang = await message.bot.get_my_commands(scope=BotCommandScopeChat(message.from_user.id),
+                                                language_code='en')
+    await message.reply('\n\n'.join(
+        f'<pre>{quote_html(arg)=}</>' for arg in (no_lang, no_args, en_lang)
+    ))
+
+
+@rate_limit(3)
+@admin_router.message(Command('reset_commands'))
+async def message_reset_commands(message: Message):
+    await message.bot.delete_my_commands(BotCommandScopeChat(message.from_user.id), language_code='en')
+    await message.reply('Команды были удалены')
+
+
+@rate_limit(3)
+@admin_router.message(Command('change_commands'))
+async def change_admin_commands(message: Message):
+    await set_chat_admins_commands(message.bot, message.chat.id)
+    await message.answer('Команды администраторов для этого чата были изменены.')
+
+
+@rate_limit(3)
+@admin_router.message(Command('gsheet'))
+async def process_gsheet(message: Message):
+    logs = await gsheets(file='Example',
+                         worksheet='Finsburg',
+                         google_docs_key=str(Path.cwd() / Path('tg_bot', 'keys', 'diesel-dominion-298810-aae09d83cf5b.json')))
+    await message.answer(', '.join(logs))
+
+
+@rate_limit(3)
+@admin_router.message(Command('atomy'))
+async def process_atomy(message: Message):
+    await message.answer('Сейчас будет необходимо по очереди за несколько шагов ввести '
+                         'фамилию, имя, отчество, дату рождения и номер телефона покупателя. '
+                         'В случае опечаток покупатель найден не будет. '
+                         'Для начала введите только фамилию с большой буквы:')
+    await message.answer('Теперь введите имя с большой буквы:')
+    await message.answer('Теперь введите отчество с большой буквы:')
+    await message.answer('Теперь введите дату рождения в формате ГГГГММДД, для сегодняшнего дня это '
+                         + datetime.today().strftime('%Y%m%d'))
+    await message.answer('Теперь введите номер телефона в формате 9ХХХХХХХХХ, например 9219876543:')
+    ret = await check_user()
+    await message.answer(ret)
