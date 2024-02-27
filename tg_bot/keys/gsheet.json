@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "diesel-dominion-298810",
+  "private_key_id": "aae09d83cf5b6dc459e18b7d52c47ae96267be7b",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDPKrJnE9kiNzvS\nQGaDvffs8Xyv1Sh5gc1/IwgNTO3rUwyfJZzuwTzeQdtH6H5dt2ks31T57FtfxkPb\nYlW/3pjLomHwg6FW6RTY0R+vxtZ0dIL8iitWIUJ4/nBea1ifjCKFLPD8jEtEgwY+\n5eOiB1x2UMDUMWra/TBJxDxV7A6gfdSccwFg+try0ewkNcCcjeMTEz3D2WYrR18s\nDyEyucq70OVhL1OwwZ8Om7qLkGH863QKwQjqSxkAiWXelPdY7dNzwxC48BcefHU8\nQn2TcGdDZOzwhCh4lGrDrVeSm2/w22KckXznoQQ89reuCP/yEPtwyawpFZnP9TVl\nwT6CJyYNAgMBAAECggEAL5SS3PHGEQG2j5eS8/cRli3wgUHnxeB2HhkhpExi6IVu\nhK7S2FMxc6qUfnN7cnLJiTDSB4Sth9W1iBGRuDubxElLTT4uNBPcYd/F800rvBt2\naiIhyephpgBqNoVZGWvKEeQ8hQSD1Pxy1sdd/LzME7CAWTvwWtOD361eXi2VPm6+\nCNbaR47NASOGqJEv3pTCoO2WhKJxQBl3pigZPinF/kgLJIQXEAw3npelH2uTB4b/\nrZUEKOEp7B7N9oPI3I3JTktG6qbsuSfrU4JPu87C2cvItP+50Ng/ZidrD9YNXmqF\nkO1JavZLfDIDsupisEOiIh0FcEWHGRyOGvR+PYLr0QKBgQD0d0MTOjqS0ijCQPhz\n8YOVmGhl2arXRPyDEubrBfmPQAh7pF6WbCoGwAr2TYb3825z0Y3xKXhxLfsYET97\nfuQZsycDGngbXR13KrLc5ZvBZFUp/ZHS0mr7e5DmeqdzE4BBjeFqfXF3UeTXW6d+\n2XrN+LVybSX/68cvVnlAWKgDpwKBgQDY8Oypq956VdoUy+hSUZGp1hjb0qB6T6A+\nIxgHzq5WbDy4tjq9D76VD8kZ10xiBlMKE/mTvb0tngYSHdpKYzYM0RApRlZjBlfo\nt3XbWoS8Cjdhg/shdbBV7vFbilyqrOt9qB3m3u54q7Um7Abtj2Whf/wmdZwR67yy\nmB10BoJPKwKBgQDvAyduRhD8eULmYXVIjomzGfaAFeeFXupvEGz6vbW4S8e/cv4T\nnZ8dSGevVi8ufy+vRuO7NGuQZH9JkZt6l55WTiVHUHq7bjefyfxkIo088Gafjk4j\nTBzS0YXjAWp0BU3xSdFpN0pXeZb+w5qoV+NMO+zS+kobxB7Tdn1H3yYtowKBgETi\nq6NsyaY64Ja98LVC5Wfybc5PYVm1MwLIDfdcr4sNr3JPmvMxrqiSbJ7h+IUf0Ppg\nQV2iYBG+Hdte01PPkPgc4m7YwNGM0Bk7OBdA9OjorZEvYWzMfAOtbcJNewNPCS/L\nVENdAogardkAFWsVn4Xap+xmZ/pgynhDSQbwkiwlAoGADOh1UWJyG56UqKHddeO/\n5eQzqsitEjbNjyKhQlx3jGDuBrOcbbr8+F9G6GOGfGtWiteXvepsa56vF5uc3etV\nclBFj0VFCvDs81LhWnGlv3OQO5lJSg9dZ+vaikamXDd74e2za0s7QluVrz1Koa3J\nkxYCEnddDv+DBR3wQbowRjI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "gfg-pygsheets@diesel-dominion-298810.iam.gserviceaccount.com",
+  "client_id": "112975912456218759573",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gfg-pygsheets%40diesel-dominion-298810.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
