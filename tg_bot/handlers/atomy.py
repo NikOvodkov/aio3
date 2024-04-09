@@ -1,5 +1,7 @@
 from datetime import datetime
 
+import datefinder
+import dateutil
 from aiogram import Router
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
@@ -36,16 +38,28 @@ async def enter_ot(message: Message, state: FSMContext):
 @router.message(StateFilter(FSMAtomy.ot))
 async def enter_da(message: Message, state: FSMContext):
     await state.update_data(MiddleName=message.text.strip())
-    await message.answer(text=LEXICON_RU['ot']+datetime.today().strftime('%d %m %Y'))
+    await message.answer(
+        text=LEXICON_RU['ot'] + ', '.join([datetime.today().strftime('%d-%m-%Y'),
+                                           datetime.today().strftime('%d.%m.%Y'),
+                                           datetime.today().strftime('%d %m %Y')]))
     await state.set_state(FSMAtomy.da)
 
 
 @router.message(StateFilter(FSMAtomy.da))
 async def enter_te(message: Message, state: FSMContext):
-    date = datetime.strptime(message.text.strip(), '%d %m %Y').strftime('%Y%m%d')
-    await state.update_data(BirthDay=date)
-    await message.answer(text=LEXICON_RU['da'])
-    await state.set_state(FSMAtomy.te)
+    # дату можно считать одним из двух парсеров, но оба не поддерживают дату без разделителей типа '22071999'
+    try:
+        date = dateutil.parser.parse(message.text, fuzzy=True)
+        # date = list(datefinder.find_dates(message.text))[0]
+        date = date.strftime('%Y%m%d')
+        print(date)
+        # date = datetime.strptime(message.text.strip(), '%d %m %Y').strftime('%Y%m%d')
+        await state.update_data(BirthDay=date)
+        await message.answer(text=LEXICON_RU['da'])
+        await state.set_state(FSMAtomy.te)
+    except:
+        await message.answer(text='Дата не распознана, повторите ввод: ')
+        await state.set_state(FSMAtomy.da)
 
 
 @router.message(StateFilter(FSMAtomy.te))

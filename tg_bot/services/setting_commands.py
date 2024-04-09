@@ -6,6 +6,7 @@ async def set_default_commands(bot: Bot):
     return await bot.set_my_commands(
         commands=[
             BotCommand(command='start', description='Начать работу/ Сброс'),
+            BotCommand(command='fitness', description='Фитнес'),
             BotCommand(command='life_calendar', description='Календарь жизни'),
             BotCommand(command='about', description='О боте'),
             BotCommand(command='help', description='Помощь')
@@ -18,6 +19,7 @@ async def set_admins_commands(bot: Bot, chat_id: int):
     return await bot.set_my_commands(
         commands=[
             BotCommand(command='gsheet', description='Обработать новые номера'),
+            BotCommand(command='fitness', description='Фитнес'),
             BotCommand(command='atomy', description='Проверить покупателя'),
             BotCommand(command='test_location', description='Тест локации'),
             BotCommand(command='life_calendar', description='Календарь жизни'),
@@ -36,12 +38,14 @@ async def set_starting_commands(bot: Bot, chat_id: int):
     STARTING_COMMANDS = {
         'ru': [
             BotCommand(command='start', description='Начать работу/ Сброс'),
+            BotCommand(command='fitness', description='Фитнес'),
             BotCommand(command='life_calendar', description='Календарь жизни'),
             BotCommand(command='about', description='О боте'),
             BotCommand(command='help', description='Помощь')
         ],
         'en': [
             BotCommand(command='start', description='Begin to work'),
+            BotCommand(command='fitness', description='Get workout'),
             BotCommand(command='life_calendar', description='Get life calendar'),
             BotCommand(command='about', description='Get information'),
             BotCommand(command='help', description='Get help')
@@ -115,6 +119,7 @@ async def set_all_private_commands(bot: Bot):
     return await bot.set_my_commands(
         commands=[
             BotCommand(command='start', description='Начать работу/ Сброс'),
+            BotCommand(command='fitness', description='Фитнес'),
             BotCommand(command='life_calendar', description='Календарь жизни'),
             BotCommand(command='about', description='О боте'),
             BotCommand(command='help', description='Помощь')

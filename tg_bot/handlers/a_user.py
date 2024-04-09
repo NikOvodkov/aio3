@@ -31,7 +31,7 @@ async def process_start_command(message: Message, db: SQLiteDatabase, state: FSM
 
 # Этот хэндлер срабатывает на команду /about
 @router.message(Command(commands='about'))
-async def process_help_command(message: Message):
+async def process_about_command(message: Message):
     await message.answer(text=LEXICON_RU['/about'])
 
 

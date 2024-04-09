@@ -4,9 +4,13 @@ from environs import Env
 
 @dataclass
 class TgBot:
-    token: str
-    admin_ids: list[int]
+    token: str  # токен telegram bot api
+    admin_ids: list[int]  # список администраторов бота
     use_redis: bool
+    phone_number: str  # номер телефона для telegram api
+    api_id: int  # токен telegram api
+    api_hash: str  # хэш telegram api
+    service_channel: int
 
 
 @dataclass
@@ -40,6 +44,10 @@ def load_config(path: str | None = None) -> Config:
         tg_bot=TgBot(
             token=env.str("TEST_TOKEN"),
             # token=env.str("WORK_TOKEN"),
+            phone_number=env.str("PHONE_NUMBER"),
+            api_id=env.int("API_ID"),
+            api_hash=env.str("API_HASH"),
+            service_channel=env.int("SERVICE_CHANNEL"),
             admin_ids=list(map(int, env.list("ADMINS"))),
             use_redis=env.bool("USE_REDIS")),
         db=DbConfig(

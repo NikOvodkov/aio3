@@ -11,6 +11,7 @@ from tg_bot.config import load_config
 
 router = Router()
 
+# вешаем фильтр на роутер
 router.message.filter(IsAdmin(load_config('.env').tg_bot.admin_ids))
 
 

@@ -18,7 +18,7 @@ from tg_bot.utils.life_calendar import generate_text_calendar, generate_image_ca
 
 def is_daytime(user):
     time_zone = user[3]
-    if time(hour=12) < (datetime.utcnow() + timedelta(hours=int(time_zone or 0))).time() < time(hour=23):
+    if time(hour=12) < (datetime.utcnow() + timedelta(hours=int(time_zone or 0))).time() < time(hour=18):
         return True
     else:
         return False

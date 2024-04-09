@@ -113,6 +113,8 @@ venv.bak/
 diesel-dominion-298810-aae09d83cf5b.json
 keys/gsheet.json
 stepik.py
+me_client.session
+me_client.session-journal
 
 # Spyder project settings
 .spyderproject
@@ -148,4 +150,10 @@ dmypy.json
 .git
 
 .vscode/
-.db
+*.db
+tg_bot/database/test.db
+tg_bot/utils/data.db.bak
+tg_bot/utils/data.db.dat
+tg_bot/utils/data.db.dir
+sqlite160124.db
+
