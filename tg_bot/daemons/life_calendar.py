@@ -26,17 +26,19 @@ def is_daytime(user):
 
 async def send_life_calendar(db: SQLiteDatabase, bot: Bot, dp: Dispatcher):
     while True:
-        records = db.select_all_users()
+        # records = db.select_all_users()
+        records = db.select_all_table('Users')
         for row in records:
             if row[6] and is_daytime(row):
                 if (datetime.now() - datetime.fromisoformat(row[6])) > timedelta(days=7):
                     path = str(Path.cwd() / Path('tg_bot', 'utils', f'{datetime.now().strftime("%Y%m%d%H%M%S%f")}.gif'))
                     await generate_image_calendar(row[4], row[5], 'week', path)
                     await bot.send_photo(row[0], photo=FSInputFile(path), reply_markup=ReplyKeyboardRemove())
-                    db.update_life_calendar(life_calendar=None, user_id=row[0])
+                    # db.update_life_calendar(life_calendar=None, user_id=row[0])
+                    db.update_cell(table='Users', cell='life_calendar', cell_value=None, key='user_id', key_value=row[0])
                     os.remove(path)
                     await dp.storage.set_state(StorageKey(bot_id=bot.id, chat_id=row[0], user_id=row[0]),
                                                state=FSMLifeCalendar.confirm_geo)
                     await bot.send_message(row[0], text='Прислать календарь через неделю? (Да/Нет)', reply_markup=yesno)
 
-        await asyncio.sleep(60)
+        await asyncio.sleep(300)

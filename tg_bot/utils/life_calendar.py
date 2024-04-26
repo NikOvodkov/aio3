@@ -5,6 +5,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
+from logging_settings import logger
+
 
 def godlet(god):
     return {
@@ -21,7 +23,8 @@ async def generate_text_calendar(ldate, rdate, interval):
     rdate_weeks = round((datetime.fromisoformat(rdate) - datetime.fromisoformat(ldate)) / timedelta(days=7))
     lived_weeks = round((datetime.today() - datetime.fromisoformat(ldate)) / timedelta(days=7))
     rdate_weeks = max(rdate_weeks, 3652)
-    print(f'{ldate=} {rdate=} {interval=} {lived_weeks=} {rdate_weeks=}')
+    # print(f'{ldate=} {rdate=} {interval=} {lived_weeks=} {rdate_weeks=}')
+    logger.debug(f'{ldate=} {rdate=} {interval=} {lived_weeks=} {rdate_weeks=}')
     str_out = ''
     if interval == 'year':
         points = round(lived_weeks / 52.1)
@@ -60,7 +63,8 @@ async def generate_image_calendar(ldate, rdate, interval, path) -> str:
     idraw.text((50, 30), text='Ваша жизнь в', font=font_big, fill='navy', stroke_width=1, stroke_fill="navy")
     str_out = ''
     y2 = 0
-    print(f'{ldate=} {rdate=} {interval=} {lived_weeks=} {rdate_weeks=} {rdate_years=} {lived_years=}')
+    # print(f'{ldate=} {rdate=} {interval=} {lived_weeks=} {rdate_weeks=} {rdate_years=} {lived_years=}')
+    logger.debug(f'{ldate=} {rdate=} {interval=} {lived_weeks=} {rdate_weeks=} {rdate_years=} {lived_years=}')
     if interval == 'year':
         lived_years = round(lived_weeks / 52.1)
         max_years = round(rdate_weeks / 52.1)
@@ -71,7 +75,8 @@ async def generate_image_calendar(ldate, rdate, interval, path) -> str:
             adj = - 85
             if lived_years < 20:
                 adj = - 1000
-        print(f'{lived_years=} {max_years=} {lived_tens=} {max_tens=}')
+        # print(f'{lived_years=} {max_years=} {lived_tens=} {max_tens=}')
+        logger.debug(f'{lived_years=} {max_years=} {lived_tens=} {max_tens=}')
         str_in = lived_years * 'ø' + (max_years - lived_years) * 'o'
         for i in range(len(str_in)):
             str_out += str_in[i]
@@ -120,7 +125,8 @@ async def generate_image_calendar(ldate, rdate, interval, path) -> str:
             adj = - 90
             if lived_months < 120:
                 adj = - 1000
-        print(f'{lived_months=} {max_months=} {lived_36s=} {max_36s=}')
+        # print(f'{lived_months=} {max_months=} {lived_36s=} {max_36s=}')
+        logger.debug(f'{lived_months=} {max_months=} {lived_36s=} {max_36s=}')
         str_in = lived_months * 'ø' + (max_months - lived_months) * 'o'
         for i in range(len(str_in)):
             str_out += str_in[i]
@@ -158,7 +164,8 @@ async def generate_image_calendar(ldate, rdate, interval, path) -> str:
     elif interval == 'week':
         max_52s = round(rdate_weeks / 52)
         lived_52s = round(lived_weeks / 52)
-        print(f'{lived_weeks=} {rdate_weeks=} {lived_52s=} {max_52s=}')
+        # print(f'{lived_weeks=} {rdate_weeks=} {lived_52s=} {max_52s=}')
+        logger.debug(f'{lived_weeks=} {rdate_weeks=} {lived_52s=} {max_52s=}')
         str_in = lived_weeks * 'ø' + (rdate_weeks - lived_weeks) * 'o'
         for i in range(len(str_in)):
             str_out += str_in[i]

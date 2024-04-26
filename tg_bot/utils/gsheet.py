@@ -11,7 +11,7 @@ from pathlib import Path
 import gspread
 import aiohttp
 
-
+from logging_settings import logger
 
 # список серверов для проверки
 SERVERS = [
@@ -63,7 +63,8 @@ async def get_operator_from_number(number: str):
                 operator = await response.json()
                 return operator['operator']
             else:
-                print(f'Запрос не обработан, код {response.status}, номер {number}.')
+                # print(f'Запрос не обработан, код {response.status}, номер {number}.')
+                logger.error(f'Запрос не обработан, код {response.status}, номер {number}.')
                 return 'Неизвестен'
 
 
@@ -105,7 +106,8 @@ async def gsheets(file: str, worksheet: str, google_docs_key: str):
             # - сохраняем в лог строку изменённой таблицы,
             logstr = f'{len(operators_column) + i + 1} {number_cell} {operator}'
             # - печатаем строку лога в шелл,
-            print(logstr)
+            # print(logstr)
+            logger.debug(logstr)
             # - добавляем строку лога в лог-список.
             lst.append(logstr)
     return lst
@@ -124,13 +126,15 @@ def add_operators_to_numbers_from_csv(csv_file: str, sep: str = ',', path: str =
                         output_line = input_line + sep + operator
                     # output_line = input_line[:-1] + sep + get_operator_from_number(input_line.split(sep)[0]) + '\n'
                     if operator == '':
-                        print(f'В строке {number_of_string+1} оператор не найден')
+                        # print(f'В строке {number_of_string+1} оператор не найден')
+                        logger.error(f'В строке {number_of_string+1} оператор не найден')
                     else:
                         output_file.write(output_line)
                 else:
                     output_file.write(input_line[:-1] + sep + 'Оператор' + '\n')
                 number_of_string += 1
-                print('\r' + '*' * (number_of_string // 50), end='')
+                logger.debug('*' * (number_of_string // 50))
+                # print('\r' + '*' * (number_of_string // 50), end='')
 
 
 if __name__ == '__main__':

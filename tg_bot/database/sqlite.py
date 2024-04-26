@@ -1,5 +1,7 @@
 import sqlite3
 
+from logging_settings import logger
+
 
 class SQLiteDatabase:
     def __init__(self, path_to_db='sqlite160124.db'):
@@ -16,7 +18,7 @@ class SQLiteDatabase:
         if not parameters:
             parameters = tuple()
         connection = self.connection
-        connection.set_trace_callback(logger)
+        connection.set_trace_callback(logger.debug)
         cursor = connection.cursor()
         data = None
         cursor.execute(sql, parameters)
@@ -64,16 +66,18 @@ class SQLiteDatabase:
         life_calendar varchar(255),  /* дата следующего получения календаря, либо None */
         latitude varchar(255),
         longitude varchar(255),
+        status varchar(10) NOT NULL, /* inactive, если пользователь бота заблокировал, иначе active */
         PRIMARY KEY (user_id)
         );
         '''
         self.execute(sql, commit=True)
 
-    def add_user(self, user_id: int, name: str, email: str = None, time_zone: str = None, birth_date: str = None,
-                 life_date: str = None, life_calendar: str = None, latitude: str = None, longitude: str = None):
-        sql = 'INSERT INTO Users(user_id, Name, email, time_zone, birth_date, life_date, life_calendar, latitude, longitude) ' \
-              'VALUES(?,?,?,?,?,?,?,?,?)'
-        parameters = (user_id, name, email, time_zone, birth_date, life_date, life_calendar, latitude, longitude)
+    def add_user(self, user_id: int, name: str, email: str = None, time_zone: str = None,
+                 birth_date: str = None, life_date: str = None, life_calendar: str = None,
+                 latitude: str = None, longitude: str = None, status: str = 'active'):
+        sql = ('INSERT INTO Users(user_id, Name, email, time_zone, birth_date, life_date, life_calendar, '
+               'latitude, longitude, status) VALUES(?,?,?,?,?,?,?,?,?,?)')
+        parameters = (user_id, name, email, time_zone, birth_date, life_date, life_calendar, latitude, longitude, status)
         self.execute(sql, parameters=parameters, commit=True)
 
     def create_table_exercises_base(self):  # таблица содержит неповторяющийся список уникальных упражнений
@@ -267,14 +271,11 @@ class SQLiteDatabase:
     def delete_table(self, table):
         self.execute(f'DELETE FROM {table} WHERE True')
 
-
-    
-
-
-def logger(statement):
-    print(f'''
-    ______________________________________
-    Executing:
-    {statement}
-    ______________________________________
-''')
+#  можно вернуть этот логгер при необходимости в функции execute, заменив им logger.debug
+# def logger(statement):
+#     print(f'''
+#     ______________________________________
+#     Executing:
+#     {statement}
+#     ______________________________________
+# ''')

@@ -92,7 +92,8 @@ async def start_trener(message: Message, state: FSMContext, db: SQLiteDatabase):
 async def start_workout(message: Message, state: FSMContext, db: SQLiteDatabase):
     data = await state.get_data()
     delete_list = data['delete_list']
-    user = db.select_user(user_id=message.from_user.id)
+    # user = db.select_user(user_id=message.from_user.id)
+    user = db.select_row(table='Users', user_id=message.from_user.id)
     await state.update_data(exercise_id=int(message.text))
     last_workout = db.select_last_workout(user_id=user[0], exercise_id=int(message.text))
     exercise = db.select_row(table='Exercises_base', exercise_id=int(message.text))
@@ -247,13 +248,16 @@ async def workout_done(message: Message, state: FSMContext, db: SQLiteDatabase):
     data = await state.get_data()
     delete_list = data['delete_list']
     delete_list.append(message.message_id)
-    user = db.select_user(user_id=message.from_user.id)
+    # user = db.select_user(user_id=message.from_user.id)
+    user = db.select_row(table='Users', user_id=message.from_user.id)
     last_repeat = int(message.text.strip())
     data = await state.get_data()
     data['done_workout'].append(str(last_repeat))
     done_workout = ' '.join(data['done_workout'])
     db.add_workout(user[0], data['exercise_id'], done_workout)
-    await message.answer(text=f"Тренировка сохранена: упражнение №{data['exercise_id']}, подходы {done_workout}")
+    await message.answer(text=f"Тренировка сохранена: упражнение №{data['exercise_id']}, подходы {done_workout}. "
+                              f"Рекомендованный перерыв между тренировками одного упражнения - от 2 до 7 дней. "
+                              f"Если перерыв будет более 7 дней, прогресс может отсутствовать.")
     msg = await message.answer(text=f"Если остались силы, можете выполнить ещё 5 подходов другого упражнения. Готовы?",
                                reply_markup=yesno)
     delete_list.append(msg.message_id)

@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import aiohttp
 import requests
 
+from logging_settings import logger
+
 
 @dataclass
 class Buyer(object):
@@ -34,13 +36,16 @@ async def check_user(payload):
         if response.status == 200:
             json = await response.json()
             if json['jsonData']:
-                print('Покупатель найден, его почта: ', json['jsonData']['Email'])
+                logger.debug(f"Покупатель найден, его почта: {json['jsonData']['Email']}")
+                # print('Покупатель найден, его почта: ', json['jsonData']['Email'])
                 return 'Покупатель найден, его почта: ' + json['jsonData']['Email']
             else:
-                print('Покупатель не найден')
+                logger.debug(f"Покупатель не найден")
+                # print('Покупатель не найден')
                 return 'Покупатель не найден'
         else:
-            print(f'Запрос не обработан, код {response.status}.')
+            # print(f'Запрос не обработан, код {response.status}.')
+            logger.debug(f"Запрос не обработан, код {response.status}.")
             return f'Запрос не обработан, код {response.status}.'
 
 
@@ -51,21 +56,25 @@ def sign_in_0():
     session.headers.update({'Referer': url})
     session.headers.update({'User-Agent': user_agent_val})
     rvt = session.cookies.get('__RequestVerificationToken_L3J10')
-    print(rvt)
+    # print(rvt)
+    logger.debug(rvt)
     data = {
         '__RequestVerificationToken': rvt,
         'userId': '12345678',
         'userPw': '123456',
         'rpage': ''
     }
-    print(data)
+    # print(data)
+    logger.debug(data)
     res = session.post(url, data=data)
     if res.status_code == 200:
-        print('Покупатель найден, его почта: ', res.text)
+        # print('Покупатель найден, его почта: ', res.text)
+        logger.debug(f'Покупатель найден, его почта: {res.text}.')
     else:
-        print(f'Запрос не обработан, код {res.status_code}.')
+        # print(f'Запрос не обработан, код {res.status_code}.')
+        logger.debug(f'Запрос не обработан, код {res.status_code}.')
     return session
 
 
 if __name__ == '__main__':
-    asyncio.run(check_user())
+    asyncio.run(check_user(payload=None))

@@ -4,6 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, BotCommandScopeChat
 
+from logging_settings import logger
 from tg_bot.database.sqlite import SQLiteDatabase
 from tg_bot.filters.admin import IsAdmin
 from tg_bot.services.setting_commands import set_admins_commands, set_chat_admins_commands
@@ -26,8 +27,10 @@ async def admin_start(message: Message, db: SQLiteDatabase, state: FSMContext):
     try:
         db.add_user(user_id=message.from_user.id, name=name)
     except sqlite3.IntegrityError as err:
-        print(err)
-    count_users = db.count_users()[0]
+        # print(err)
+        logger.exception(err)
+    # count_users = db.count_users()[0]
+    count_users = db.count_rows('Users')[0]
     await message.answer(
         '\n'.join([
             f'Привет, админ {message.from_user.full_name}!',

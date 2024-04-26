@@ -1,6 +1,7 @@
 from pyrogram import filters, Client
 from pyrogram.types import Message
 
+from logging_settings import logger
 from tg_bot.config import load_config
 
 RESULT_CHANNEL = -1001960729872  # паблик куда будем репостить
@@ -24,12 +25,12 @@ SOURCE_CHANNELS = [
 # вызывается при появлении нового поста в одном из пабликов-доноров
 @Client.on_message(filters.chat(SOURCE_CHANNELS))
 async def new_channel_repost(client: Client, message: Message):
-    print('репост начало')
+    logger.debug('репост начало')
     try:
         # автоматическая пересылка без обработки
         await message.copy(RESULT_CHANNEL)
     except Exception as e:
-        print(e)
+        logger.exception(e)
         if message.caption:
             caption_html = message.caption.html
         else:
@@ -61,9 +62,9 @@ async def new_channel_repost(client: Client, message: Message):
         elif message.audio:
             obj = await message.download(in_memory=True)
             await client.send_audio(chat_id=RESULT_CHANNEL, audio=obj, caption=caption_html)
-    print('репост конец')
+    logger.debug('репост конец')
 
 
 if __name__ == '__main__':
-    print('Atempt to run telegrabber')
+    logger.info('Atempt to run telegrabber')
     # client_pyrogram.run()  # эта строка запустит все обработчики

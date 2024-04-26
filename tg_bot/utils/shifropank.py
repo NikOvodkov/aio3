@@ -4,6 +4,7 @@ import shelve  # файловая база данных
 
 from pyrogram.types import Message
 
+from logging_settings import logger
 from tg_bot.config import load_config
 
 db = shelve.open('data.db', writeback=True)  # заменить на sqlite
@@ -30,18 +31,21 @@ app = Client("me_client", api_id=config.tg_bot.api_id, api_hash=config.tg_bot.ap
 def new_channel_post(client: Client, message: Message):
     # сохраняем пост в базу (функцию add_post_to_db определим потом)
     post_id = add_post_to_db(message)
-    print(post_id)
+    # print(post_id)
+    logger.debug(post_id)
 
     # автоматическая пересылка без обработки
     message.copy(PUBLIC_PUBLIC)
 
     # пересылаем пост в скрытый паблик
     message.forward(chat_id=PRIVATE_PUBLIC)
-    print('forwarded tu private')
+    # print('forwarded tu private')
+    logger.debug('forwarded tu private')
 
     # в скрытый паблик отправляем присвоенный id поста
     client.send_message(PRIVATE_PUBLIC, post_id)
-    print('forwarded id')
+    # print('forwarded id')
+    logger.debug('forwarded id')
     # потом для пересылки в публичный паблик админ должен отправить боту этот id
 
 
@@ -63,7 +67,8 @@ def add_post_to_db(message):
         'username': message.chat.username,  # паблик-донор
         'message_id': message.id,  # внутренний id сообщения
     }
-    print(db[str(new_id)])
+    # print(db[str(new_id)])
+    logger.debug(db[str(new_id)])
     return new_id
 
 
@@ -98,5 +103,6 @@ def post_request(client, message):
 
 
 if __name__ == '__main__':
-    print('Atempt to run telegrabber')
+    # print('Atempt to run telegrabber')
+    logger.info('Atempt to run telegrabber')
     app.run()  # эта строка запустит все обработчики

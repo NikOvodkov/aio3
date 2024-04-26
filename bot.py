@@ -1,20 +1,22 @@
 import asyncio
-import logging
+
 from aiogram import Bot, Dispatcher
+from aiogram.client.default import DefaultBotProperties
+from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from pyrogram import Client
 
 from autorun import return_bot_status, print_telegram
+from logging_settings import logger
 from tg_bot.config import load_config, Config
 from tg_bot.daemons.life_calendar import send_life_calendar
 
 from tg_bot.database.sqlite import SQLiteDatabase
 from tg_bot.handlers import a_user, a_other, a_admin, atomy, gsheet, life_calendar, update_db_sqlite, trener
+from tg_bot.middlewares.shadow_ban import ShadowBanMiddleware
+from tg_bot.middlewares.throttling import ThrottlingMiddleware
 from tg_bot.services.setting_commands import force_reset_all_commands, set_default_commands, set_admins_commands, set_all_groups_commands, set_all_chat_admins_commands, set_all_private_commands
 from aiogram.fsm.storage.redis import RedisStorage, Redis
-
-
-logger = logging.getLogger(__name__)
 
 
 async def set_all_default_commands(bot: Bot, config: Config):
@@ -31,7 +33,7 @@ async def on_startup_notify(bot: Bot, config: Config):
         try:
             await bot.send_message(admin, "Бот Запущен и готов к работе")
         except Exception as err:
-            logging.exception(err)
+            logger.exception(err)
 
 
 async def daemons(bot, db, dp):
@@ -40,16 +42,16 @@ async def daemons(bot, db, dp):
 
 async def writelog(dp: Dispatcher):
     while True:
-        await asyncio.sleep(30)
-        logging.info('Bot is working.')
+        await asyncio.sleep(120)
+        logger.info('Bot is working.')
         dp['autorun_was_working'] = dp['autorun_is_working']
-        dp['autorun_is_working'] = return_bot_status('autorun.txt', 120)
+        dp['autorun_is_working'] = return_bot_status('autorun.txt', 300)
         if dp['autorun_is_working'] != dp['autorun_was_working']:
             if dp['autorun_is_working']:
-                print('\r', 'Nib: autorun zarabotal', end='')
+                logger.info('Nib: autorun zarabotal')
                 await print_telegram('Nib: autorun zarabotal')
             else:
-                print('\r', 'Nib: autorun ostanovilsya', end='')
+                logger.info('Nib: autorun ostanovilsya')
                 await print_telegram('Nib: autorun ostanovilsya')
 
 
@@ -71,51 +73,52 @@ def get_storage(config):
 
 
 async def main():
-    logging.basicConfig(level=logging.INFO,  # filename='aiobot.log',
-                        format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s -%(message)s')
-    config = load_config('.env')
+    # Выводим в консоль информацию о начале запуска бота
+    logger.info('Starting bot')
+    # Загружаем конфиг в переменную config
+    config: Config = load_config('.env')
+    # Инициализируем объект хранилища
     storage = get_storage(config)
+    # Инициализируем бот и диспетчер
+    aiobot = Bot(
+        token=config.tg_bot.token,
+        default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+    )
     dp = Dispatcher(storage=storage)
-    dp['config'] = config
+    # Инициализируем другие объекты (пул соединений с БД, кеш и т.п.)
     db = SQLiteDatabase()
-    dp['db'] = db
-
-    aiobot = Bot(token=config.tg_bot.token, parse_mode='HTML')
-
+    try:
+        logger.info('Создаём подключение к базе данных')
+        db.create_table_users()
+        db.create_table_exercises_base()
+        db.create_table_muscles_base()
+        db.create_table_muscles_user()
+        db.create_table_workouts()
+    except Exception as e:
+        logger.exception(e)
     # создаем клиент пирограм
     pyrobot = Client("me_client",
                      api_id=config.tg_bot.api_id,
                      api_hash=config.tg_bot.api_hash,
                      phone_number=config.tg_bot.phone_number,
                      plugins=dict(root='tg_bot/handlers'))
-
-    if return_bot_status('autorun.txt', 120):
-        print('\r', 'Nib: autorun rabotaet', end='')
+    # Помещаем нужные объекты в workflow_data диспетчера
+    dp['config'] = config
+    dp['db'] = db
+    dp['bot'] = aiobot
+    if return_bot_status('autorun.txt', 300):
+        logger.info('Nib: autorun rabotaet')
         await print_telegram('Nib: autorun rabotaet')
         dp['autorun_is_working'] = True
     else:
-        print('\r', 'Nib: autorun ne rabotaet', end='')
+        logger.info('Nib: autorun ne rabotaet')
         await print_telegram('Nib: autorun ne rabotaet')
         dp['autorun_is_working'] = False
-
-    try:
-        logging.info('Создаём подключение к базе данных')
-        db.create_table_users()
-        db.create_table_exercises_base()
-        db.create_table_muscles_base()
-        db.create_table_muscles_user()
-        db.create_table_workouts()
-
-    except Exception as e:
-        print(e)
-    # logging.info('Чистим базу')
-    # db.delete_users()
-    # print(db.select_all_table('Users'))
-    # print(db.select_all_table('Exercises_base'))
-    # print(db.select_all_table('Muscles_base'))
-    # print(db.select_all_table('Muscles_user'))
-    # print(db.select_all_table('Workouts'))
-
+    # Настраиваем главное меню бота
+    # await set_main_menu(bot)
+    await set_all_default_commands(aiobot, config)
+    # Регистриуем роутеры
+    logger.info('Подключаем роутеры')
     dp.include_routers(a_admin.router,
                        update_db_sqlite.router,
                        a_user.router,
@@ -124,8 +127,10 @@ async def main():
                        life_calendar.router,
                        trener.router,
                        a_other.router)
-
-    await set_all_default_commands(aiobot, config)
+    # Регистрируем миддлвари
+    logger.info('Подключаем миддлвари')
+    dp.update.middleware(ShadowBanMiddleware())
+    dp.update.middleware(ThrottlingMiddleware())
     await on_startup_notify(aiobot, config)
 
     task1 = asyncio.create_task(dp.start_polling(aiobot))

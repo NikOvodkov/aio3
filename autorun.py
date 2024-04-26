@@ -22,7 +22,7 @@ def return_bot_status(file: str, secs: int):
 
 
 async def main():
-    if return_bot_status('bot.log', 60):
+    if return_bot_status('bot.log', 300):
         print('\r', 'Autorun: nib_bot rabotaet', end='')
         await print_telegram('Autorun: nib_bot rabotaet')
         bot_is_working = True
@@ -35,7 +35,7 @@ async def main():
         with open(f'autorun.txt', 'w') as f:
             f.write(f"{time.asctime(time.localtime(time.time()))} Autorun rabotaet")
         bot_was_working = bot_is_working
-        bot_is_working = return_bot_status('bot.log', 60)
+        bot_is_working = return_bot_status('bot.log', 300)
         if bot_is_working != bot_was_working:
             if bot_is_working:
                 print('\r', 'Autorun: nib_bot zarabotal', end='')
@@ -45,7 +45,7 @@ async def main():
                 await print_telegram('Autorun: nib_bot ostanovilsya')
             # break
             # os.system('python main.py')
-        await asyncio.sleep(60)
+        await asyncio.sleep(120)
 
 
 if __name__ == '__main__':

@@ -8,6 +8,7 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, ReplyKeyboardRemove, FSInputFile
 
+from logging_settings import logger
 from tg_bot.database.sqlite import SQLiteDatabase
 from tg_bot.keyboards.life_calendar import yesno, geono
 from tg_bot.lexicon.life_calendar import LEXICON_RU
@@ -23,7 +24,8 @@ async def start_life_calendar(message: Message, state: FSMContext, db: SQLiteDat
     # при входе в сервис Календарь жизни отправляем приветствие
     await message.answer(text=LEXICON_RU['life_calendar_0'])
     # находим пользователя в бд
-    user = db.select_user(user_id=message.from_user.id)
+    # user = db.select_user(user_id=message.from_user.id)
+    user = db.select_row(table='Users', user_id=message.from_user.id)
     # если в бд указана дата рождения, то просим её подтвердить
     if user[4]:
         date = datetime.strptime(user[4], '%Y-%m-%d').strftime('%d-%m-%Y')
@@ -51,7 +53,8 @@ async def confirm_date(message: Message, state: FSMContext):
 async def no_enter_date(message: Message, state: FSMContext, db: SQLiteDatabase):
     # если пользователь согласен получить календарь, формируем его, отправляем и удаляем с сервера
     if message.text.lower().strip() == 'да':
-        user = db.select_user(user_id=message.from_user.id)
+        # user = db.select_user(user_id=message.from_user.id)
+        user = db.select_row(table='Users', user_id=message.from_user.id)
         path = str(Path.cwd() / Path('tg_bot', 'utils', f'{datetime.now().strftime("%Y%m%d%H%M%S%f")}.gif'))
         await generate_image_calendar(user[4], user[5], 'week', path)
         await message.answer_photo(photo=FSInputFile(path), reply_markup=ReplyKeyboardRemove())
@@ -76,13 +79,15 @@ async def no_enter_date(message: Message, state: FSMContext, db: SQLiteDatabase)
 @router.message(StateFilter(FSMLifeCalendar.enter_date))
 async def enter_date(message: Message, state: FSMContext, db: SQLiteDatabase):
     # обрабатываем полученную дату рождения и сохраняем её в бд
-    user = db.select_user(user_id=message.from_user.id)
+    # user = db.select_user(user_id=message.from_user.id)
+    user = db.select_row(table='Users', user_id=message.from_user.id)
     # date = '-'.join(message.text.split())
     # дату можно считать одним из двух парсеров, но оба не поддерживают дату без разделителей типа '22071999'
     date = dateutil.parser.parse(message.text, fuzzy=True)
     # date = list(datefinder.find_dates(message.text))[0]
     date = date.strftime('%Y-%m-%d')
-    print(date)
+    # print(date)
+    logger.debug(date)
     # date = datetime.strptime(date, '%d-%m-%Y').strftime('%Y-%m-%d')
     db.update_cell(table='Users', cell='birth_date', cell_value=date, key='user_id', key_value=message.from_user.id)
     # вычисляем возраст пользователя в днях
@@ -119,7 +124,8 @@ async def enter_date(message: Message, state: FSMContext, db: SQLiteDatabase):
 
 @router.message(StateFilter(FSMLifeCalendar.oldster_enter_date))
 async def oldster_enter_date(message: Message, state: FSMContext, db: SQLiteDatabase):
-    user = db.select_user(user_id=message.from_user.id)
+    # user = db.select_user(user_id=message.from_user.id)
+    user = db.select_row(table='Users', user_id=message.from_user.id)
     date = user[4]
     if message.text > '0':
         life_date = (timedelta(weeks=int(message.text) * 52.1786) + datetime.now()).strftime('%Y-%m-%d')
@@ -147,7 +153,8 @@ async def oldster_enter_date(message: Message, state: FSMContext, db: SQLiteData
 @router.message(StateFilter(FSMLifeCalendar.confirm_geo))
 async def confirm_geo(message: Message, state: FSMContext, db: SQLiteDatabase):
     if message.text.lower().strip() == 'да':
-        user = db.select_user(user_id=message.from_user.id)
+        # user = db.select_user(user_id=message.from_user.id)
+        user = db.select_row(table='Users', user_id=message.from_user.id)
         await state.set_state(FSMLifeCalendar.confirm_geo_process)
         await message.answer(text=f'{LEXICON_RU["confirm_geo_0"]}{user[3]}{LEXICON_RU["confirm_geo_1"]}', reply_markup=yesno)
     else:
