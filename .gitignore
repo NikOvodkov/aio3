@@ -150,7 +150,9 @@ dmypy.json
 .git
 
 .vscode/
-*.db
+.db
+.session
+.session-journal
 tg_bot/database/test.db
 tg_bot/utils/data.db.bak
 tg_bot/utils/data.db.dat
